@@ -32,7 +32,7 @@
     end
 
     desc "Loads Route Definitions in #{RAILS_ROOT}/db/routes/*/Route_*Uris View Path"
-    task :rebuild =>  :environment, :seed do
+    task :rebuild => [ :environment, :seed ] do
       require "service_table"
       Dir.foreach("#{RAILS_ROOT}/db/routes") do |dir|
         if (dir =~ /^Route_.*/)
