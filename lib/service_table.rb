@@ -251,7 +251,8 @@ class ServiceTable
   end
 
   def self.rebuildRoutes(routes_dir)
-    Dir.foreach(routes_dir) do |routedir|
+    puts "Rebuilding Routes in #{routes_dir}"
+    ::Dir.foreach(routes_dir) do |routedir|
       if (routedir =~ /^Route_.*/)
         path = ::File.expand_path(routedir, routes_dir)
         self.rebuildRoute(routedir)
