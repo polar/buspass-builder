@@ -31,7 +31,7 @@
       ServiceTable.clear
     end
 
-    desc "Loads Route Definitions in #{RAILS_ROOT}/db/routes/*/Route_*"
+    desc "Loads Route Definitions in #{RAILS_ROOT}/db/routes/*/Route_*Uris View Path"
     task :rebuild => :seed do
       require "service_table"
       Dir.foreach("#{RAILS_ROOT}/db/routes") do |dir|
@@ -43,17 +43,17 @@
     end
 
     desc "Dumps GoogleUriViewPaths into a CSV File in #{RAILS_ROOT}/db/google_view_paths-write.csv"
-    task :dump_uris do
+    task :dump_uris => :environment do
       GoogleUriViewPath.write("#{RAILS_ROOT}/db/google_view_paths-write.csv")
     end
 
     desc "Clears GoogleUriViewPaths"
-    task :clear_uris do
+    task :clear_uris => :environment do
       GoogleUriViewPath.delete_all
     end
 
     desc "Loads GoogleUriViewPaths from a CSV File in #{RAILS_ROOT}/db/google_view_paths.csv"
-    task :load_uris do
+    task :load_uris => :environment do
       GoogleUriViewPath.read("#{RAILS_ROOT}/db/google_view_paths.csv")
     end
 
