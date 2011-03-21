@@ -1,0 +1,17 @@
+
+  namespace :db do
+    desc "Creates the MySQL Database and user on the local host"
+    task :create do
+       cmd = "mysql --no-defaults -u root -p "
+       dcmd = "create database buspass #{RAILS_ENV};"
+       ucmd = "create user 'buspass'@'localhost' identified by 'buspass';"
+       gcmd = "grant all on buspass_#{RAILS_ENV}.* to user 'buspass'@'localhost';"
+       tmpfile = Tempfile.new('db-buspass')
+       tmpfile.write(dcmd)
+       tmpfile.write(ucmd)
+       tmpfile.write(gcmd)
+       tmpfile.close
+       execute "#{cmd} < #{tmpfile.path}"
+       tmpfile.unlink
+    end
+  end

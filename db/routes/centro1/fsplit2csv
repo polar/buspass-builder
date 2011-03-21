@@ -1,0 +1,28 @@
+#!/usr/bin/ruby
+require 'rubygems'
+require 'faster_csv'
+
+def columize(file, nlines)
+  lines = FasterCSV.read(file)
+  table = []
+  while (!lines.empty?) do
+    row = lines.shift(nlines.to_i).flatten
+    if (!row.empty?)
+      table << row
+    end
+  end
+  table = table.transpose
+  tabio = FasterCSV.new(STDOUT, :force_quotes => true)
+  for row in table do
+      tabio << FasterCSV::Row.new([],row)
+  end
+  tabio.close
+end
+
+begin
+  columize(ARGV[1],ARGV[0])
+rescue StandardError => x
+  STDERR << "Error #{x}\n"
+  STDERR << "usage: split nlines file\n"
+end
+

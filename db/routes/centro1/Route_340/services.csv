@@ -1,0 +1,7 @@
+"name","route","description","operating_period_start_date","operating_period_end_date","monday","tuesday","wednesday","thursday","friday","saturday","sunday","direction"
+"Route 340 Weekday Service Inbound","Route 340","Drumlins","2010-09-06","2011-09-06","true","true","true","true","true","false","false","Inbound"
+"Route 340 Saturday Service Inbound","Route 340","Drumlins","2010-09-06","2011-09-06","false","false","false","false","false","true","false","Inbound"
+"Route 340 Sunday and Holiday Service Inbound","Route 340","Drumlins","2010-09-06","2011-09-06","false","false","false","false","false","false","true","Inbound"
+"Route 340 Weekday Service Outbound","Route 340","Drumlins","2010-09-06","2011-09-06","true","true","true","true","true","false","false","Outbound"
+"Route 340 Saturday Service Outbound","Route 340","Drumlins","2010-09-06","2011-09-06","false","false","false","false","false","true","false","Outbound"
+"Route 340 Sunday and Holiday Service Outbound","Route 340","Drumlins","2010-09-06","2011-09-06","false","false","false","false","false","false","true","Outbound"
