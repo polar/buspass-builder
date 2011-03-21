@@ -252,7 +252,9 @@ class ServiceTable
 
   def self.rebuildRoutes(routes_dir)
     Dir.foreach(routes_dir) do |routedir|
-      self.rebuildRoute(routedir)
+      if (dir =~ /^Route_.*/)
+        self.rebuildRoute(routedir)
+      end
     end
   end
 

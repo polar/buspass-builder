@@ -35,7 +35,7 @@
     task :rebuild => [ :environment, :seed ] do
       require "service_table"
       Dir.foreach("#{RAILS_ROOT}/db/routes") do |dir|
-        if (dir =~ /^Route_.*/)
+        if (dir =~ /^Network_.*/)
           puts "Rebuilding #{dir}"
           ServiceTable.rebuildRoutes(dir)
         end
