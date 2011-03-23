@@ -1,9 +1,12 @@
 
   namespace :buspass do
+
     desc "Creates the MySQL Database and user on the local host"
-    task :createdb do
+    task :createdb => :environment do
        require "tempfile"
-       cmd = "mysql --no-defaults --force -u root -p mysql "
+       config = ActiveRecord::Base.configurations[RAILS_ENV]
+       host = config["socket"].split(":").first
+       cmd = "mysql --no-defaults --force -u root -p mysql -h #{host} "
        dcmd = "create database buspass_#{RAILS_ENV};\n"
        ucmd = "create user 'buspass'@'localhost' identified by 'buspass';\n"
        gcmd = "grant all on buspass_#{RAILS_ENV}.* to 'buspass'@'localhost';\n"
