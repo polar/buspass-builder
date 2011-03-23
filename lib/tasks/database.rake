@@ -5,8 +5,8 @@
     task :createdb => :environment do
        require "tempfile"
        config = ActiveRecord::Base.configurations[RAILS_ENV]
-       host = config["socket"].split(":").first
-       cmd = "mysql --no-defaults --force -u root -p mysql -h #{host} "
+       # Assume local host
+       cmd = "mysql --no-defaults --force -u root -p mysql "
        dcmd = "create database buspass_#{RAILS_ENV};\n"
        ucmd = "create user 'buspass'@'localhost' identified by 'buspass';\n"
        gcmd = "grant all on buspass_#{RAILS_ENV}.* to 'buspass'@'localhost';\n"
