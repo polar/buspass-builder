@@ -45,7 +45,7 @@ namespace :buspass do
     run("cd buspass-builder/current;export RAILS_ENV=#{rails_env};rake buspass:create_api")
   end
   task :start_sim, :roles => :app  do
-    stream("cd buspass-builder/current;export RAILS_ENV=#{rails_env};script/runner 'Delayed::Job.enqueue VehicleJourney.simulate_all(10)' 2>&1 1> log/simulate.log")
+    stream("cd buspass-builder/current;export RAILS_ENV=#{rails_env};script/runner 'Delayed::Job.enqueue DelayedSimulation.new(10)' 2>&1 1> log/simulate.log")
   end
 
 end
