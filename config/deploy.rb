@@ -51,6 +51,12 @@ namespace :buspass do
 end
 
 namespace :delayed_job do
+
+  desc "Clear Jobs"
+  task :clear, :roles => :app do
+    run "cd #{current_path};export RAILS_ENV=#{rails_env};rake jobs:clear")
+  end
+
   desc "Start delayed_job process"
   task :start, :roles => :app do
     run "cd #{current_path}; script/delayed_job start #{rails_env}"

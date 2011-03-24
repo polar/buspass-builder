@@ -8,7 +8,7 @@
     end
 
     desc "Clears the Database of Persistent Route Data"
-    task :clear do
+    task :clear => :environment do
       require "service_table"
       ServiceTable.clear
     end
