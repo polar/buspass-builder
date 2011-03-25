@@ -74,13 +74,18 @@ namespace :delayed_job do
 end
 
 after "deploy:start", "delayed_job:start"
-after "deploy:stop", "delayed_job:stop"
+before "deploy:stop", "delayed_job:stop"
 after "deploy:restart", "delayed_job:restart"
 
 
 namespace :deploy  do
   task :start do
+    run "/etc/init.d/buspass-server-unicorn start"
+  end
+  task :stop do
+    run "/etc/init.d/buspass-server-unicorn stop"
   end
   task :restart do
+    run "/etc/init.d/buspass-server-unicorn restart"
   end
 end
