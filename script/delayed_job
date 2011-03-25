@@ -1,25 +1,25 @@
 #!/usr/bin/env ruby
+# -*- ruby -*-
 require 'rubygems'
-require 'daemons'
-dir = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+require 'daemon-spawn'
 
-daemon_options = {
-  :multiple => false,
-  :dir_mode => :normal,
-  :dir => File.join(dir, 'tmp', 'pids'),
-  :backtrace => true
-}
+RAILS_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 
-Daemons.run_proc('job_runner', daemon_options) do
-  if ARGV.include?('--')
-    ARGV.slice! 0..ARGV.index('--')
-  else
-    ARGV.clear
+class DelayedJobWorker < DaemonSpawn::Base
+  def start(args)
+    ENV['RAILS_ENV'] ||= args.first || 'development'
+    Dir.chdir RAILS_ROOT
+    require File.join('config', 'environment')
+
+    Delayed::Worker.new.start
   end
 
-  Dir.chdir dir
-  RAILS_ENV = ARGV.first || ENV['RAILS_ENV'] || 'development'
-  require File.join('config', 'environment')
-
-  Delayed::Worker.new.start
+  def stop
+    system("kill `cat #{RAILS_ROOT}/tmp/pids/delayed_job.pid`")
+  end
 end
+
+DelayedJobWorker.spawn!(:log_file => File.join(RAILS_ROOT, "log", "delayed_job.log"),
+                        :pid_file => File.join(RAILS_ROOT, 'tmp', 'pids', 'delayed_job.pid'),
+                        :sync_log => true,
+                        :working_dir => RAILS_ROOT)
