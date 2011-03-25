@@ -50,7 +50,7 @@ namespace :buspass do
 
 end
 
-namespace :delayed_job do
+namespace :jobs do
 
   desc "Clear Jobs"
   task :clear, :roles => :app do

@@ -264,7 +264,7 @@ class ServiceTable
   ## Typing Convenience Functions
   ##
   def self.routedir
-      "#{RAILS_ROOT}/db/routes/centro1"
+      "#{RAILS_ROOT}/db/routes/Network_Centro-SU"
   end
 
   def self.rd(name)
