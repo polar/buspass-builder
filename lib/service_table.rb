@@ -260,6 +260,26 @@ class ServiceTable
     end
   end
 
+  def self.createRoutes(routes_dir)
+    puts "Rebuilding Routes in #{routes_dir}"
+    ::Dir.foreach(routes_dir) do |routedir|
+      if (routedir =~ /^Route_.*/)
+        path = ::File.expand_path(routedir, routes_dir)
+        self.createRoute(path)
+      end
+    end
+  end
+
+  def self.fixRoutes(routes_dir)
+    puts "Rebuilding Routes in #{routes_dir}"
+    ::Dir.foreach(routes_dir) do |routedir|
+      if (routedir =~ /^Route_.*/)
+        path = ::File.expand_path(routedir, routes_dir)
+        self.fixRoute(path)
+      end
+    end
+  end
+
   ##
   ## Typing Convenience Functions
   ##
@@ -290,5 +310,9 @@ class ServiceTable
     self.doR 30
     self.doR 343
     self.doR "Sadler"
+  end
+
+  def self.cRs
+    createRoutes(routedir)
   end
 end
