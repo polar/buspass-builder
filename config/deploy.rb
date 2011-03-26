@@ -73,9 +73,9 @@ namespace :jobs do
   end
 end
 
-after "deploy:start", "delayed_job:start"
-before "deploy:stop", "delayed_job:stop"
-after "deploy:restart", "delayed_job:restart"
+after "deploy:start", "jobs:start"
+before "deploy:stop", "jobs:stop"
+after "deploy:restart", "jobs:restart"
 
 
 namespace :deploy  do
