@@ -1,7 +1,7 @@
 class CreateJourneyPatterns < ActiveRecord::Migration
   def self.up
     create_table :journey_patterns do |t|
-      t.string   "name"
+      t.text     "name"
       t.string   "description"
       t.integer  "route_id"
       t.float    "nw_lat"
