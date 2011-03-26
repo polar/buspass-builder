@@ -38,8 +38,11 @@ namespace :buspass do
   task :load_uris, :roles => :db  do
     run("cd buspass-builder/current;export RAILS_ENV=#{rails_env};rake buspass:load_uris")
   end
-  task :rebuild, :roles => :db  do
-    stream("cd buspass-builder/current;export RAILS_ENV=#{rails_env}rake buspass:rebuild")
+  task :clear_routes, :roles => :db  do
+    stream("cd buspass-builder/current;export RAILS_ENV=#{rails_env};rake buspass:clear_routes")
+  end
+  task :rebuild_routes, :roles => :db  do
+    stream("cd buspass-builder/current;export RAILS_ENV=#{rails_env};rake buspass:rebuild_routes")
   end
   task :create_api, :roles => :db  do
     run("cd buspass-builder/current;export RAILS_ENV=#{rails_env};rake buspass:create_api")
