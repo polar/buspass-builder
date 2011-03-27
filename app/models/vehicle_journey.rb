@@ -200,10 +200,12 @@ class VehicleJourney < ActiveRecord::Base
 
     current_link = tls.shift
     time_past = Time.now - time_start
+    total_distance = 0
     linki = 1
     while time_past < dur && journey_time < dur && current_link != nil do
       while current_link != nil && time_past > journey_time + current_link.time.minutes do
         journey_time += current_link.time.minutes
+        total_distance += current_link.path_distance
         current_link = tls.shift
         linki += 1
       end
@@ -220,7 +222,6 @@ class VehicleJourney < ActiveRecord::Base
         details = "--journey start--"
         direction = journey_pattern.starting_direction
         distance = 0
-        total_distance = 0
       else
         time_previous = journey_location.reported_time
         coord_previous = journey_location.coordinates

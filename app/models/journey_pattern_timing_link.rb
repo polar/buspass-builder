@@ -81,7 +81,7 @@ class JourneyPatternTimingLink < ActiveRecord::Base
 
   # Feet/Milisecond
   def average_speed
-    path_distance/time.minutes
+    path_distance.to_f/time.minutes
   end
 
   # t is time in miliseconds from 0
