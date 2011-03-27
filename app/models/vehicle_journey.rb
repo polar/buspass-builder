@@ -252,6 +252,7 @@ class VehicleJourney < ActiveRecord::Base
 
       puts "VehicleJourney '#{self.name}' recording location #{journey_location.id} of #{coordinates.inspect} at #{reported_time} with timediff #{timediff} direction #{direction} distance #{total_distance} in Link #{linki} details = #{details}"
       journey_location.save!
+      journey_time = time_past
       #puts "Sleeping for #{time_interval}"
       sleep time_interval
       time_past = Time.now - time_start
