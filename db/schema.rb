@@ -9,12 +9,26 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110324215727) do
+ActiveRecord::Schema.define(:version => 20110327203238) do
 
   create_table "apis", :force => true do |t|
     t.integer  "major_version"
     t.integer  "minor_version"
     t.text     "definition"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "call_stats", :force => true do |t|
+    t.integer  "user_id"
+    t.float    "longitude"
+    t.float    "latitude"
+    t.string   "controller"
+    t.string   "action"
+    t.datetime "call_time"
+    t.datetime "recv_time"
+    t.datetime "send_time"
+    t.integer  "sessionid"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -56,6 +70,14 @@ ActiveRecord::Schema.define(:version => 20110324215727) do
     t.text     "coordinates"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.float    "direction"
+    t.integer  "distance"
+    t.integer  "timediff"
+    t.text     "last_coordinates"
+    t.datetime "last_reported_time"
+    t.integer  "last_distance"
+    t.float    "last_direction"
+    t.integer  "last_timediff"
   end
 
   create_table "journey_pattern_timing_links", :force => true do |t|

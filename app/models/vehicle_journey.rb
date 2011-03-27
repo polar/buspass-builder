@@ -82,21 +82,21 @@ class VehicleJourney < ActiveRecord::Base
   # Returns the time difference in seconds
   # Negative is early.
   def time_difference(distance, time)
-    etd = DateTime.parse("0:00 #{Time.now.zone}") + departure_time.minutes
+    etd = Time.parse("0:00") + departure_time.minutes
     eta = etd + journey_pattern.time_on_path(distance)
-    if eta = 1.minute <= time
+    if eta - 1.minute <= time
       if time <= eta + 1.minute
         # We are for the most part, on time
         return 0;
       else
-  puts "LATE!!!!  #{time} ETA #{eta}  #{time-eta} #{(time-eta)/60} #{((time.to_time - etd.to_time)/60).to_i}"
-        # we are late (positive) in minutes
-        return ((time.to_time - eta.to_time)/60).to_i
+  puts "LATE!!!!  #{time} ETA #{eta}  #{time-eta}  #{((time - eta)/1.minute).to_i}"
+        # we are late (positive) in seconds
+        return ((time - eta)/1.minute).to_i
       end
     else
-  puts "EARLY!!!  #{time} ETA #{eta}  #{time-eta} #{(time-eta)/60} #{((time.to_time - eta.to_time)/60).to_i}"
+  puts "EARLY!!!  #{time} ETA #{eta}  #{time-eta}  #{((time - eta)/1.minute).to_i}"
       # We are early (negative)
-      return ((time.to_time - eta.to_time)/60).to_i
+      return ((time - eta)/1.minute).to_i
     end
   end
 
@@ -244,7 +244,7 @@ class VehicleJourney < ActiveRecord::Base
 
       journey_location.coordinates = coordinates
       journey_location.direction = direction
-      journey_location.distance += total_distance
+      journey_location.distance = total_distance
       journey_location.timediff = timediff
       journey_location.reported_time = reported_time
       journey_location.recorded_time = DateTime.now
@@ -262,6 +262,7 @@ class VehicleJourney < ActiveRecord::Base
     end
   rescue Exception => boom
         puts "Ending VehicleJourney'#{self.name}' because of #{boom}"
+        puts boom.backtrace
   ensure
     if journey_location != nil
       journey_location.destroy

@@ -92,11 +92,7 @@ class JourneyPatternTimingLink < ActiveRecord::Base
 
   # t is time in miliseconds from 0
   def direction_on_path(t)
-    dir = getDirectionOnPath(view_path_coordinates["LonLat"], average_speed, t)
-    if !isOnRoute(coord, 60)
-      raise "Not on Route"
-    end
-    dir
+    getDirectionOnPath(view_path_coordinates["LonLat"], average_speed, t)
   end
 
   # d is in feet
