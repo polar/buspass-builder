@@ -220,6 +220,7 @@ class VehicleJourney < ActiveRecord::Base
         details = "--journey start--"
         direction = journey_pattern.starting_direction
         distance = 0
+        total_distance = 0
       else
         time_previous = journey_location.reported_time
         coord_previous = journey_location.coordinates
@@ -230,8 +231,8 @@ class VehicleJourney < ActiveRecord::Base
         time = time_start + time_past - journey_location.reported_time
         speed = distance/time
         details = "dist = #{distance} dir = #{direction} speed = #{speed} time = #{time}"
+        total_distance = journey_location.distance + distance
       end
-      total_distance = journey_location.distance + distance
       reported_time  = time_start + time_past
       timediff = time_difference(total_distance, reported_time)
 
