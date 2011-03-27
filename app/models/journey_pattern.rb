@@ -110,6 +110,11 @@ class JourneyPattern < ActiveRecord::Base
     journey_pattern_timing_links.reduce(0) {|v,tl| v + tl.time}
   end
 
+  # in feet
+  def path_distance
+    journey_pattern_timing_links.reduce(0) {|v,tl| v + tl.path_distance}
+  end
+
   # T is in miliseconds from 0
   def get_jtpl_for_time(time)
     tls = journey_pattern_timing_links
