@@ -5,6 +5,7 @@ class CreateUserTrackings < ActiveRecord::Migration
       t.float    "latitude"
       t.datetime "login_date"
       t.integer  "user_id"
+      t.integer  "sessionid"
 
       t.timestamps
     end
