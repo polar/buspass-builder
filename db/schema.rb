@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110327203238) do
+ActiveRecord::Schema.define(:version => 20110328145845) do
 
   create_table "apis", :force => true do |t|
     t.integer  "major_version"
@@ -184,6 +184,7 @@ ActiveRecord::Schema.define(:version => 20110327203238) do
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "sessionid"
   end
 
   create_table "users", :force => true do |t|
