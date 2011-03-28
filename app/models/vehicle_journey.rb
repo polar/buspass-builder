@@ -127,7 +127,7 @@ class VehicleJourney < ActiveRecord::Base
   end
 
   TIME_ZONE = "America/New_York"
-  TZ = Time.now.in_time_zone(TIME_ZONE)
+  TZ = Time.now.in_time_zone(TIME_ZONE).zone
 
   def time_zone
     TZ
