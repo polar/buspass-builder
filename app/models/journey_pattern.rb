@@ -130,9 +130,38 @@ class JourneyPattern < ActiveRecord::Base
   end
 
   # T is in miliseconds from 0
+  def point_on_path(t)
+    tls = journey_pattern_timing_links
+    begin_time = 0.minutes
+    for tl in tls do
+      end_time = begin_time + tl.time.minutes
+      if begin_time <= t && t <= end_time
+        return tl.point_on_path(t-begin_time)
+      end
+      begin_time = end_time
+    end
+    raise "Time is past duration"
+  end
+
+  # T is in miliseconds from 0
+  def direction_on_path(t)
+    tls = journey_pattern_timing_links
+    begin_time = 0.minutes
+    for tl in tls do
+      end_time = begin_time + tl.time.minutes
+      if begin_time <= t && t <= end_time
+        return tl.direction_on_path(t-begin_time)
+      end
+      begin_time = end_time
+    end
+    raise "Time is past duration"
+  end
+
+  # T is in miliseconds from 0
   def distance_on_path(t)
     tls = journey_pattern_timing_links
     begin_time = 0.minutes
+    distance = 0
     for tl in tls do
       end_time = begin_time + tl.time.minutes
       if begin_time <= t && t <= end_time
