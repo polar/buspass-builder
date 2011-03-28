@@ -130,7 +130,7 @@ class VehicleJourney < ActiveRecord::Base
   TZ = Time.now.in_time_zone(TIME_ZONE).zone
 
   def time_zone
-    TZ
+    return TZ
   end
 
   def base_time
@@ -140,6 +140,7 @@ class VehicleJourney < ActiveRecord::Base
   def tz(time)
     time.in_time_zone(TIME_ZONE)
   end
+
   def simulate(time_interval, sim_time = false)
     # Duration is stored in minutes, need to covert
     dur = duration.minutes
@@ -231,7 +232,7 @@ class VehicleJourney < ActiveRecord::Base
 	  puts "Stopping Journey #{journey.id} #{journey.name} on #{boom}"
 	ensure
 	  puts "Removing Journey #{journey.id} #{journey.name} #{(base_time+journey.start_time.minutes).strftime("%H:%M")}-#{(base_time+journey.end_time.minutes).strftime("%H:%M")} at #{(Time.now).strftime("%H:%M")}"
-	  @runners.delete(journey.id)
+	  runners.delete(journey.id)
 	end
       end
       self

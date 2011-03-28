@@ -544,7 +544,7 @@ module LocationBoxing
   #   distance       feet
   #
   def getTimeOnPath(view_path_coordinates, average_speed, distance)
-    target = distance/average_speed # miliseconds
+    target = distance/average_speed # seconds
   end
 
 end
