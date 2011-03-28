@@ -79,12 +79,12 @@ class VehicleJourney < ActiveRecord::Base
         # We are for the most part, on time
         return 0;
       else
-  puts "LATE!!!!  #{time} ETA #{eta}  #{time-eta}  #{((time - eta)/1.minute).to_i}"
+  puts "LATE!!!!  #{tz(time)} ETA #{tz(eta)}  #{time-eta}  #{((time - eta)/1.minute).to_i}"
         # we are late (positive) in minutes
         return ((time - eta)/1.minute).to_i
       end
     else
-  puts "EARLY!!!  #{time} ETA #{eta}  #{time-eta}  #{((time - eta)/1.minute).to_i}"
+  puts "EARLY!!!  #{tz(time)} ETA #{tz(eta)}  #{time-eta}  #{((time - eta)/1.minute).to_i}"
       # We are early (negative)
       return ((time - eta)/1.minute).to_i
     end
@@ -126,14 +126,20 @@ class VehicleJourney < ActiveRecord::Base
     @please_stop_simulating = true
   end
 
+  TIME_ZONE = "America/New_York"
+  TZ = Time.now.in_time_zone(TIME_ZONE)
+
   def time_zone
-    "EDT"
+    TZ
   end
 
   def base_time
     Time.parse("0:00 #{time_zone}")
   end
 
+  def tz(time)
+    time.in_time_zone(TIME_ZONE)
+  end
   def simulate(time_interval, sim_time = false)
     # Duration is stored in minutes, need to covert
     dur = duration.minutes
@@ -143,7 +149,7 @@ class VehicleJourney < ActiveRecord::Base
     else
       time_start = Time.now
     end
-    puts "Starting Simulation of #{self.name} at #{Time.now} for duration of #{duration} minutes"
+    puts "Starting Simulation of #{self.name} at #{tz(Time.now)} for duration of #{duration} minutes"
 
     time_past = Time.now - time_start
     while time_past < dur do
@@ -171,7 +177,7 @@ class VehicleJourney < ActiveRecord::Base
 
       journey_location.save!
 
-      puts "VehicleJourney '#{self.name}' recording location #{journey_location.id} of #{coordinates.inspect} at direction #{direction} distance #{total_distance} timediff #{timediff} time #{time_past}"
+      puts "VehicleJourney '#{self.name}' recording location #{journey_location.id} of #{coordinates.inspect} at direction #{direction} distance #{total_distance} at #{tz(reported_time)} timediff #{timediff} time #{time_past}"
 
       if sim_time
         time_past += time_interval.seconds
