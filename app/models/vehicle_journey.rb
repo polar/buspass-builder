@@ -152,7 +152,7 @@ class VehicleJourney < ActiveRecord::Base
     puts "Starting Simulation of #{self.name} at #{tz(Time.now)} for duration of #{duration} minutes"
 
     time_past = Time.now - time_start
-    while time_past < dur do
+    while time_past >= 0 && time_past < dur do
       coordinates = journey_pattern.point_on_path(time_past)
       if journey_location == nil
         create_journey_location(:service => service, :route => service.route)
