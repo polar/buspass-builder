@@ -262,7 +262,7 @@ class VehicleJourney < ActiveRecord::Base
       puts "Starting Journey #{journey.id} #{journey.name}"
       thread = Thread.new do
 	begin
-	  journey.simulate(time_interval, true)
+	  journey.simulate(time_interval)
 	rescue Error => boom
 	  puts "Stopping Journey #{journey.id} #{journey.name} on #{boom}"
 	ensure
