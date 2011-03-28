@@ -152,33 +152,34 @@ class VehicleJourney < ActiveRecord::Base
     puts "Starting Simulation of #{self.name} at #{tz(Time.now)} for duration of #{duration} minutes"
 
     time_past = Time.now - time_start
-    while time_past >= 0 && time_past < dur do
-      coordinates = journey_pattern.point_on_path(time_past)
-      if journey_location == nil
-        create_journey_location(:service => service, :route => service.route)
+    while time_past < dur do
+      if (time_past >=0)
+        coordinates = journey_pattern.point_on_path(time_past)
+        if journey_location == nil
+          create_journey_location(:service => service, :route => service.route)
+        end
+        total_distance = journey_pattern.distance_on_path(time_past) # feet
+        direction      = journey_pattern.direction_on_path(time_past) # radians from North
+        reported_time  = time_start + time_past
+        timediff       = time_difference(total_distance, reported_time)
+
+        journey_location.last_coordinates   = journey_location.coordinates
+        journey_location.last_reported_time = journey_location.reported_time
+        journey_location.last_distance      = journey_location.distance
+        journey_location.last_direction     = journey_location.direction
+        journey_location.last_timediff      = journey_location.timediff
+
+        journey_location.coordinates   = coordinates
+        journey_location.direction     = direction
+        journey_location.distance      = total_distance
+        journey_location.timediff      = timediff
+        journey_location.reported_time = reported_time
+        journey_location.recorded_time = Time.now
+
+        journey_location.save!
+
+        puts "VehicleJourney '#{self.name}' recording location #{journey_location.id} of #{coordinates.inspect} at direction #{direction} distance #{total_distance} at #{tz(reported_time)} timediff #{timediff} time #{time_past}"
       end
-      total_distance = journey_pattern.distance_on_path(time_past) # feet
-      direction      = journey_pattern.direction_on_path(time_past) # radians from North
-      reported_time  = time_start + time_past
-      timediff       = time_difference(total_distance, reported_time)
-
-      journey_location.last_coordinates   = journey_location.coordinates
-      journey_location.last_reported_time = journey_location.reported_time
-      journey_location.last_distance      = journey_location.distance
-      journey_location.last_direction     = journey_location.direction
-      journey_location.last_timediff      = journey_location.timediff
-
-      journey_location.coordinates   = coordinates
-      journey_location.direction     = direction
-      journey_location.distance      = total_distance
-      journey_location.timediff      = timediff
-      journey_location.reported_time = reported_time
-      journey_location.recorded_time = Time.now
-
-      journey_location.save!
-
-      puts "VehicleJourney '#{self.name}' recording location #{journey_location.id} of #{coordinates.inspect} at direction #{direction} distance #{total_distance} at #{tz(reported_time)} timediff #{timediff} time #{time_past}"
-
       if sim_time
         time_past += time_interval.seconds
       else
