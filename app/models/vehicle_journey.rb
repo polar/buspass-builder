@@ -231,7 +231,7 @@ class VehicleJourney < ActiveRecord::Base
 	  puts "Stopping Journey #{journey.id} #{journey.name} on #{boom}"
 	ensure
 	  puts "Removing Journey #{journey.id} #{journey.name} #{(base_time+journey.start_time.minutes).strftime("%H:%M")}-#{(base_time+journey.end_time.minutes).strftime("%H:%M")} at #{(Time.now).strftime("%H:%M")}"
-	  runners.delete(journey.id)
+	  @runners.delete(journey.id)
 	end
       end
       self
