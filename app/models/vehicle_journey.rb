@@ -37,7 +37,7 @@ class VehicleJourney < ActiveRecord::Base
   end
 
   def is_scheduled?(time)
-    time_start = Time.parse("0:00")+departure_time.minutes
+    time_start = base_time+departure_time.minutes
     time_end = time_start + duration.minutes
     return time_start <= time && time <= time_end
   end
@@ -52,7 +52,7 @@ class VehicleJourney < ActiveRecord::Base
   #
   def direction(coord, buffer, time)
     tls = journey_pattern.journey_pattern_timing_links
-    begin_time = DateTime.parse("0:00 #{Time.now.zone}") + departure_time.minutes
+    begin_time = base_time + departure_time.minutes
     for tl in tls do
       end_time = begin_time + tl.time.minutes
       if (begin_time - 10.minutes <= time && time <= end_time + 10.minutes)
@@ -72,7 +72,7 @@ class VehicleJourney < ActiveRecord::Base
   # Returns the time difference in minutes
   # Negative is early.
   def time_difference(distance, time)
-    etd = Time.parse("0:00") + departure_time.minutes
+    etd = base_time + departure_time.minutes
     eta = etd + journey_pattern.time_on_path(distance)
     if eta - 1.minute <= time
       if time <= eta + 1.minute
@@ -88,42 +88,6 @@ class VehicleJourney < ActiveRecord::Base
       # We are early (negative)
       return ((time - eta)/1.minute).to_i
     end
-  end
-
-  # Returns the time_difference in minutes.
-  def time_difference_DONTUSE(coord,time)
-    # TODO: This algorithm has problems with circular routes
-    # or close to them.
-    # if the departure time is negative and we are still before midnight
-    # then we have to go from yesterday. What's the threshold?
-    etd = DateTime.parse("0:00 #{Time.now.zone}") + departure_time.minutes
-    tls = journey_pattern.journey_pattern_timing_links
-    for tl in tls do
-       eta = etd + tl.time.minutes
-       puts "ETD #{etd}  #{time} ETA #{eta}"
-       if tl.isBoundedBy(coord)
-        if tl.isOnRoute(coord, 60)  # TODO: Buffer is in feet, need to change to meters
-          if etd <= time
-            if time <= eta
-              # We are for the most part, on time
-              return 0;
-            else
-       puts "LATE!!!!  ETD #{etd}  #{time} etd<=time: #{etd<=time} ETA #{eta}  eta<=time: #{eta<=time} #{time-eta} #{(time-eta)/60} #{((time.to_time - etd.to_time)/60).to_i}"
-              # we are late (positive) in minutes
-              return ((time.to_time - etd.to_time)/60).to_i
-            end
-          else
-       puts "EARLY!!!  ETD #{etd}  #{time} etd<=time: #{etd<=time} ETA #{eta}  #{time-eta} #{(time-eta)/60} #{((time.to_time - eta.to_time)/60).to_i}"
-            # We are early (negative)
-            return ((time.to_time - eta.to_time)/60).to_i
-          end
-        end
-       end
-       tls = tls.drop(1)
-       tl = tls.first
-       etd = eta
-    end
-    return 0
   end
 
   ##
@@ -162,12 +126,20 @@ class VehicleJourney < ActiveRecord::Base
     @please_stop_simulating = true
   end
 
+  def self.time_zone
+    "EDT"
+  end
+
+  def self.base_time
+    Time.parse("0:00 #{self.time_zone}")
+  end
+
   def simulate(time_interval, sim_time = false)
     # Duration is stored in minutes, need to covert
     dur = duration.minutes
 
     if ! sim_time
-      time_start = Time.parse("0:00") + departure_time.minutes
+      time_start = base_time + departure_time.minutes
     else
       time_start = Time.now
     end
@@ -251,7 +223,7 @@ class VehicleJourney < ActiveRecord::Base
 	rescue Error => boom
 	  puts "Stopping Journey #{journey.id} #{journey.name} on #{boom}"
 	ensure
-	  puts "Removing Journey #{journey.id} #{journey.name} #{(Time.parse("0:00")+journey.start_time.minutes).strftime("%H:%M")}-#{(Time.parse("0:00")+journey.end_time.minutes).strftime("%H:%M")} at #{(Time.now).strftime("%H:%M")}"
+	  puts "Removing Journey #{journey.id} #{journey.name} #{(base_time+journey.start_time.minutes).strftime("%H:%M")}-#{(base_time+journey.end_time.minutes).strftime("%H:%M")} at #{(Time.now).strftime("%H:%M")}"
 	  runners.delete(journey.id)
 	end
       end
