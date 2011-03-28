@@ -126,12 +126,12 @@ class VehicleJourney < ActiveRecord::Base
     @please_stop_simulating = true
   end
 
-  def self.time_zone
+  def time_zone
     "EDT"
   end
 
-  def self.base_time
-    Time.parse("0:00 #{self.time_zone}")
+  def base_time
+    Time.parse("0:00 #{time_zone}")
   end
 
   def simulate(time_interval, sim_time = false)
