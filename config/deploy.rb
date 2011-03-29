@@ -27,8 +27,8 @@ set :user, "buspass"
 #role :web, "buspass@suoc.syr.edu:922"
 #role :db,  "buspass@suoc.syr.edu:922", :primary => true
 # 184.106.109.126 is adiron.com until DNS flushes
-server "buspass@adiron.com", :web, :app, :db, :primary => true
-#server "buspass@192.168.99.3", :web, :app, :db, :primary => true
+#server "buspass@adiron.com", :web, :app, :db, :primary => true
+server "buspass@192.168.99.3", :web, :app, :db, :primary => true
 
 namespace :buspass do
   task :createdb, :roles => :db  do
@@ -36,7 +36,7 @@ namespace :buspass do
     run("cd buspass-builder/current;export RAILS_ENV=#{rails_env};rake db:seed")
   end
   task :load_uris, :roles => :db  do
-    run("cd buspass-builder/current;export RAILS_ENV=#{rails_env};rake buspass:load_uris")
+    stream("cd buspass-builder/current;export RAILS_ENV=#{rails_env};rake buspass:load_uris")
   end
   task :clear_routes, :roles => :db  do
     stream("cd buspass-builder/current;export RAILS_ENV=#{rails_env};rake buspass:clear_routes")
