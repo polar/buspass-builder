@@ -36,10 +36,17 @@ class VehicleJourney < ActiveRecord::Base
     start_time + duration
   end
 
+  # Time is minutes after/before a particular base midnight.
   def is_scheduled?(time)
-    time_start = base_time+departure_time.minutes
-    time_end = time_start + duration.minutes
-    return time_start <= time && time <= time_end
+    diff = (time-base_time)
+    if (departure_time.minutes < diff && diff < departure_time.minutes + duration.minutes)
+      return true
+    else # it could be by a lot.
+      #Say our base time ended up at midnight tomorrow becase it's after midnight
+      # then our diff < -24 hourse
+      diff = diff + 24.hours
+      departure_time.minutes < diff && diff < departure_time.minutes + duration.minutes
+    end
   end
 
   def locatedBy(coord)
@@ -108,6 +115,7 @@ class VehicleJourney < ActiveRecord::Base
 	  :readonly => false
   end
 
+  # Time is in minutes of midnight of the date. Be careful of TimeZone.
   def self.find_by_date_time(date, time)
     all = self.find_by_date(date)
     all.select { |vj| vj.is_scheduled?(time) }
