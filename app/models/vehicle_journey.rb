@@ -157,34 +157,35 @@ class VehicleJourney < ActiveRecord::Base
 
     # Since we are working with time intervals, we get our current time base.
     time_base = Time.now
+    time_last = time_base
     if ! sim_time
       # The base time may be midnight of the next day due to TimeZone.
       # If so the time_from_midnight will be negative. However, before we
       # add 24 hours to it, we check to see if we are scheduled within
       # a negative departure time (before midnight).
-      time_from_midnight = time_base - base_time
-      if !(departure_time.minutes <= time_from_midnight &&
-          time_from_midnight <= departure_time.minutes + duration.minutes)
-        time_from_midnight = time_from_midnight + 24.hours
+      ti_from_midnight = time_base - base_time
+      if !(departure_time.minutes <= ti_from_midnight &&
+          ti_from_midnight <= departure_time.minutes + duration.minutes)
+        ti_from_midnight = ti_from_midnight + 24.hours
       end
       # Running time from start. If it's negative, we wait.
-      time_past = time_from_midnight - departure_time.minutes
+      ti_past = ti_from_midnight - departure_time.minutes
       # Due to a late start on the simulation, we may *already* be operating
       # with a positive time_past. Figure start time.
     else
-      time_past = 0
+      ti_past = 0
     end
-    time_start = time_base + time_past
-    while time_past < duration.minutes do
-      if (time_past >=0)
+    time_start = time_base + ti_past
+    while ti_past < duration.minutes do
+      if (ti_past >=0)
         # We are operating.
-        coordinates = journey_pattern.point_on_path(time_past)
+        coordinates = journey_pattern.point_on_path(ti_past)
         if journey_location == nil
           create_journey_location(:service => service, :route => service.route)
         end
-        total_distance = journey_pattern.distance_on_path(time_past) # feet
-        direction      = journey_pattern.direction_on_path(time_past) # radians from North
-        reported_time  = time_start + time_past
+        total_distance = journey_pattern.distance_on_path(ti_past) # feet
+        direction      = journey_pattern.direction_on_path(ti_past) # radians from North
+        reported_time  = time_start + ti_past
         timediff       = time_difference(total_distance, reported_time)
 
         journey_location.last_coordinates   = journey_location.coordinates
@@ -202,17 +203,23 @@ class VehicleJourney < ActiveRecord::Base
 
         journey_location.save!
 
-        puts "VehicleJourney '#{self.name}' recording location #{journey_location.id} of #{coordinates.inspect} at direction #{direction} distance #{total_distance} at #{tz(reported_time)} timediff #{timediff} time #{time_past}"
+        puts "VehicleJourney '#{self.name}' recording location #{journey_location.id} of #{coordinates.inspect} at direction #{direction} distance #{total_distance} at #{tz(reported_time)} timediff #{timediff} time #{ti_past}"
       end
       if sim_time
         time_past += time_interval.seconds
       else
         sleep time_interval
-        time_past += Time.now - base_time
-      end
+        time = Time.now
+        ti_since_last = time - time_last
+        time_last = time
+        ti_past += ti_since_last
 
       if @please_stop_simulating
+        puts "Stopping the Simulation of #{name}"
         break;
+      end
+      if @please_stop_simulating
+        puts "Break didnt' work: #{name}"
       end
     end
   rescue Exception => boom
