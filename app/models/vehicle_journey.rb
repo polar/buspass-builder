@@ -147,8 +147,6 @@ class VehicleJourney < ActiveRecord::Base
   end
 
   def simulate(time_interval, sim_time = false)
-    # Duration is stored in minutes, need to covert
-    dur = duration.minutes
 
     if ! sim_time
       time_start = base_time + departure_time.minutes
@@ -157,9 +155,29 @@ class VehicleJourney < ActiveRecord::Base
     end
     puts "Starting Simulation of #{self.name} at #{tz(Time.now)} for duration of #{duration} minutes"
 
-    time_past = Time.now - time_start
-    while time_past < dur do
+    # Since we are working with time intervals, we get our current time base.
+    time_base = Time.now
+    if ! sim_time
+      # The base time may be midnight of the next day due to TimeZone.
+      # If so the time_from_midnight will be negative. However, before we
+      # add 24 hours to it, we check to see if we are scheduled within
+      # a negative departure time (before midnight).
+      time_from_midnight = time_base - base_time
+      if !(departure_time.minutes <= time_from_midnight &&
+          time_from_midnight <= departure_time.minutes + duration.minutes)
+        time_from_midnight = time_from_midnight + 24.hours
+      end
+      # Running time from start. If it's negative, we wait.
+      time_past = time_from_midnight - depature_time.minutes
+      # Due to a late start on the simulation, we may *already* be operating
+      # with a positive time_past. Figure start time.
+    else
+      time_past = 0
+    end
+    time_start = time_base + time_past
+    while time_past < duration.minutes do
       if (time_past >=0)
+        # We are operating.
         coordinates = journey_pattern.point_on_path(time_past)
         if journey_location == nil
           create_journey_location(:service => service, :route => service.route)
@@ -190,7 +208,7 @@ class VehicleJourney < ActiveRecord::Base
         time_past += time_interval.seconds
       else
         sleep time_interval
-        time_past = Time.now - time_start
+        time_past += Time.now - base_time
       end
 
       if @please_stop_simulating
