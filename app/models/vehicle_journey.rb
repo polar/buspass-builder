@@ -147,7 +147,7 @@ class VehicleJourney < ActiveRecord::Base
     time.in_time_zone(TIME_ZONE)
   end
 
-  class AuditLogger << Logger
+  class AuditLogger < Logger
     def format_message(severity, timestamp, progname, msg)
       "#{msg}\n"
     end
