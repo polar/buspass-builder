@@ -168,23 +168,31 @@ class VehicleJourney < ActiveRecord::Base
     time_base = Time.now
     time_last = time_base
     if ! sim_time
-      # The base time may be midnight of the next day due to TimeZone.
-      # If so the time_from_midnight will be negative. However, before we
+      # The time_base may be midnight of the next day due to time zones.
+      # If so, the ti_from_midnight will be negative. However, before we
       # add 24 hours to it, we check to see if we are scheduled within
       # a negative departure time (before midnight).
       ti_from_midnight = time_base - base_time
+      time_midnight = base_time
       if !(departure_time.minutes <= ti_from_midnight &&
           ti_from_midnight <= departure_time.minutes + duration.minutes)
+        # Wwe are working from last midnight
         ti_from_midnight = ti_from_midnight + 24.hours
+        time_midnight = time_midnight - 24.hours
       end
       # Running time from start. If it's negative, we wait.
       ti_past = ti_from_midnight - departure_time.minutes
       # Due to a late start on the simulation, we may *already* be operating
       # with a positive time_past. Figure start time.
+      if ti_past <= 0
+        time_start = time_base - ti_past
+      else # ti_past > 0
+        time_start = time_midnight + departure_time.minutes
+      end
     else
       ti_past = 0
+      time_start = time_base
     end
-    time_start = time_base + [ ti_past, departure_time.minutes ].max
     while ti_past < duration.minutes do
       if (ti_past >=0)
         # We are operating.
@@ -274,10 +282,11 @@ class VehicleJourney < ActiveRecord::Base
 	rescue Error => boom
 	  logger.info "Stopping Journey #{journey.id} #{journey.name} on #{boom}"
 	ensure
-	  logger.info "Removing Journey #{journey.id} #{journey.name} #{(base_time+journey.start_time.minutes).strftime("%H:%M")}-#{(base_time+journey.end_time.minutes).strftime("%H:%M")} at #{(Time.now).strftime("%H:%M")}"
+	  logger.info "Removing Journey #{journey.id} #{journey.name} #{(journey.base_time+journey.start_time.minutes).strftime("%H:%M")}-#{(journey.base_time+journey.end_time.minutes).strftime("%H:%M")} at #{(Time.now).strftime("%H:%M")}"
 	  runners.delete(journey.id)
 	end
       end
+      logger.info "Started Journey #{journey.id} #{thread.inspect}"
       self
     end
   end
@@ -309,7 +318,7 @@ class VehicleJourney < ActiveRecord::Base
     for k in keys do
       runner = runners[k]
       if runner != nil
-	logger.info "Killing #{runner.journey.id} #{runner.journey.id} thread = #{runner.journey.id}"
+	logger.info "Killing #{runner.journey.id} thread = #{runner.thread.inspect}"
 	if runner.journey != nil
 	  runner.journey.stop_simulating
 	end
