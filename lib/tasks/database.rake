@@ -71,6 +71,7 @@
     task :create_api => :environment do
       CONTROLLER_IP = UDPSocket.open {|s| s.connect("64.233.187.99", 1); s.addr.last}
       CONTROLLER_URL = "http://#{CONTROLLER_IP}:3000"
+      CONTROLLER_URL = "http://adiron.kicks-ass.net:3000"
       api = Api.new
       api.major_version = 1
       api.minor_version = 1
