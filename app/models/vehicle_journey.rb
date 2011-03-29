@@ -213,10 +213,11 @@ class VehicleJourney < ActiveRecord::Base
         ti_since_last = time - time_last
         time_last = time
         ti_past += ti_since_last
+      end
 
       if @please_stop_simulating
         puts "Stopping the Simulation of #{name}"
-        break;
+        break
       end
       if @please_stop_simulating
         puts "Break didnt' work: #{name}"
