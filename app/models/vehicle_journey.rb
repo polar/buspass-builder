@@ -128,6 +128,7 @@ class VehicleJourney < ActiveRecord::Base
   # This function sets a indication so that the simulation for the
   # this journey stops on the next wake up call.
   def stop_simulating
+    logger.info "Being told to stop! #{name}"
     @please_stop_simulating = true
   end
 
@@ -146,14 +147,22 @@ class VehicleJourney < ActiveRecord::Base
     time.in_time_zone(TIME_ZONE)
   end
 
-  def simulate(time_interval, sim_time = false)
+  class AuditLogger << Logger
+    def format_message(severity, timestamp, progname, msg)
+      "#{msg}\n"
+    end
+  end
+
+  logger = AuditLogger.new(STDOUT)
+
+  def simulate(time_interval, sim_time = false, logger = VehicleJourney.logger)
 
     if ! sim_time
       time_start = base_time + departure_time.minutes
     else
       time_start = Time.now
     end
-    puts "Starting Simulation of #{self.name} at #{tz(Time.now)} for duration of #{duration} minutes"
+    logger.info "Starting Simulation of #{self.name} at #{tz(Time.now)} for duration of #{duration} minutes"
 
     # Since we are working with time intervals, we get our current time base.
     time_base = Time.now
@@ -203,7 +212,7 @@ class VehicleJourney < ActiveRecord::Base
 
         journey_location.save!
 
-        puts "VehicleJourney '#{self.name}' recording location #{journey_location.id} of #{coordinates.inspect} at direction #{direction} distance #{total_distance} at #{tz(reported_time)} timediff #{timediff} time #{ti_past}"
+        logger.info "VehicleJourney '#{self.name}' recording location #{journey_location.id} of #{coordinates.inspect} at direction #{direction} distance #{total_distance} at #{tz(reported_time)} timediff #{timediff} time #{ti_past}"
       end
       if sim_time
         time_past += time_interval.seconds
@@ -216,16 +225,16 @@ class VehicleJourney < ActiveRecord::Base
       end
 
       if @please_stop_simulating
-        puts "Stopping the Simulation of #{name}"
+        logger.info "Stopping the Simulation of #{name}"
         break
       end
       if @please_stop_simulating
-        puts "Break didnt' work: #{name}"
+        logger.info "Break didnt' work: #{name}"
       end
     end
   rescue Exception => boom
-        puts "Ending VehicleJourney'#{self.name}' because of #{boom}"
-        puts boom.backtrace
+        logger.info "Ending VehicleJourney'#{self.name}' because of #{boom}"
+        logger.info boom.backtrace
   ensure
     if journey_location != nil
       journey_location.destroy
@@ -246,23 +255,25 @@ class VehicleJourney < ActiveRecord::Base
     attr_accessor :runners
     attr_accessor :thread
     attr_accessor :time_interval
+    attr_accessor :logger
 
-    def initialize(rs,j,t)
+    def initialize(rs,j,t, logger = VehicleJourney.logger)
       @runners = rs
       @journey = j
       @time_interval = t
-      puts "Initializing Journey #{journey.id} #{journey.name}"
+      @logger = logger
+      logger.info "Initializing Journey #{journey.id} #{journey.name}"
     end
 
     def run
-      puts "Starting Journey #{journey.id} #{journey.name}"
+      logger.info "Starting Journey #{journey.id} #{journey.name}"
       thread = Thread.new do
 	begin
-	  journey.simulate(time_interval)
+	  journey.simulate(time_interval, false, logger)
 	rescue Error => boom
-	  puts "Stopping Journey #{journey.id} #{journey.name} on #{boom}"
+	  logger.info "Stopping Journey #{journey.id} #{journey.name} on #{boom}"
 	ensure
-	  puts "Removing Journey #{journey.id} #{journey.name} #{(base_time+journey.start_time.minutes).strftime("%H:%M")}-#{(base_time+journey.end_time.minutes).strftime("%H:%M")} at #{(Time.now).strftime("%H:%M")}"
+	  logger.info "Removing Journey #{journey.id} #{journey.name} #{(base_time+journey.start_time.minutes).strftime("%H:%M")}-#{(base_time+journey.end_time.minutes).strftime("%H:%M")} at #{(Time.now).strftime("%H:%M")}"
 	  runners.delete(journey.id)
 	end
       end
@@ -288,26 +299,26 @@ class VehicleJourney < ActiveRecord::Base
       sleep 60
     end
   rescue Exception => boom
-    puts "Simulation Ending because #{boom}"
-	print boom.backtrace.join("\n")
+    logger.info "Simulation Ending because #{boom}"
+    logger.info boom.backtrace.join("\n")
   ensure
     puts "Stopping Simulation #{runners.keys.size} Runners"
     keys = runners.keys.clone
     for k in keys do
       runner = runners[k]
       if runner != nil
-	puts "Killing #{runner.journey.id} #{runner.journey.id} thread = #{runner.journey.id}"
+	logger.info "Killing #{runner.journey.id} #{runner.journey.id} thread = #{runner.journey.id}"
 	if runner.journey != nil
 	  runner.journey.stop_simulating
 	end
       end
     end
-    puts "Waiting"
+    logger.info "Waiting"
     while !runners.empty? do
-      puts "#{runners.keys.size} Runners"
+      logger.info "#{runners.keys.size} Runners"
       sleep time_interval
     end
-    puts "All stopped"
+    logger.info "All stopped"
   end
 
 end
