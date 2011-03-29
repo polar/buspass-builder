@@ -86,12 +86,12 @@ class VehicleJourney < ActiveRecord::Base
         # We are for the most part, on time
         return 0;
       else
-  puts "LATE!!!!  #{tz(time)} ETA #{tz(eta)}  #{time-eta}  #{((time - eta)/1.minute).to_i}"
+  logger.info "LATE!!!!  #{tz(time)} ETA #{tz(eta)}  #{time-eta}  #{((time - eta)/1.minute).to_i}"
         # we are late (positive) in minutes
         return ((time - eta)/1.minute).to_i
       end
     else
-  puts "EARLY!!!  #{tz(time)} ETA #{tz(eta)}  #{time-eta}  #{((time - eta)/1.minute).to_i}"
+  logger.info "EARLY!!!  #{tz(time)} ETA #{tz(eta)}  #{time-eta}  #{((time - eta)/1.minute).to_i}"
       # We are early (negative)
       return ((time - eta)/1.minute).to_i
     end
@@ -286,6 +286,7 @@ class VehicleJourney < ActiveRecord::Base
   # seconds. An exception delivered to this function will end the
   # simulation of all running journeys.
   def self.simulate_all(time_interval)
+    logger = AuditLogger.new(STDOUT)
     JourneyLocation.delete_all
     runners = {}
     while true do
@@ -293,7 +294,7 @@ class VehicleJourney < ActiveRecord::Base
       # Create Journey Runners for new Journeys.
       for j in journeys do
 	if !runners.keys.include?(j.id)
-	  runners[j.id] = JourneyRunner.new(runners,j,time_interval).run
+	  runners[j.id] = JourneyRunner.new(runners,j,time_interval,logger).run
 	end
       end
       sleep 60
