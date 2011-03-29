@@ -168,7 +168,7 @@ class VehicleJourney < ActiveRecord::Base
         time_from_midnight = time_from_midnight + 24.hours
       end
       # Running time from start. If it's negative, we wait.
-      time_past = time_from_midnight - depature_time.minutes
+      time_past = time_from_midnight - departure_time.minutes
       # Due to a late start on the simulation, we may *already* be operating
       # with a positive time_past. Figure start time.
     else
