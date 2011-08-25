@@ -52,10 +52,26 @@ class ServiceTable
    # Sometimes we have times out of range. 25:33
   def self.parseTime(timeliteral)
       begin
-        h,m = timeliteral.split(':').map {|n| n.to_i}
-        current_time = Time.parse("0:00") + h.hours + m.minutes
+	if timeliteral.is_a? String
+	  if (timeliteral.index(':') != nil)
+	    h,m = timeliteral.split(':').map {|n| n.to_i}
+	  elsif (timeliteral.index('.') != nil)
+	    h,m = timeliteral.split('.').map {|n| n.to_i}
+	  else 
+	    raise "Time Format Error"
+	  end
+	elsif timeliteral.is_a? Float
+	  h,m = sprintf("%0.2f",timeliteral).split('.').map {|n| n.to_i}
+	else
+	  raise "Time Format Error"
+	end
+	if (m < 0 || m > 59)
+	  raise "Time Format Error"
+	end
+	# works even if hours is negative.  -1.23 means 11:23pm the previous day.
+        time = Time.parse("0:00") + h.hours + m.minutes
       rescue
-        raise "Invalid Time Error at 111 '#{timeliteral}' i=#{i} h=#{h} m=#{m}"
+        raise "Invalid Time Error at 111 '#{timeliteral}' h=#{h} m=#{m}"
       end
   end
 
@@ -111,7 +127,7 @@ class ServiceTable
         while i < stop_point_names.size-1
           stop_name = stop_point_names[i]
           # We only do someting if there is a time in the column
-          if times[i] != nil && !times[i].empty?
+          if times[i] != nil && !times[i].strip.empty?
             if start_time == nil
               # This is the begining point. The first time found.
               current_time = parseTime(times[i])
