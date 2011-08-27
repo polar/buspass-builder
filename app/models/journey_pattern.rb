@@ -42,6 +42,7 @@ class JourneyPattern < ActiveRecord::Base
   DIST_FUDGE = 100
 
   def validate
+    return true
     last_jptl = journey_pattern_timing_links.first
     last_to_location = last_jptl.to.location
     last_coord = last_jptl.view_path_coordinates["LonLat"].last

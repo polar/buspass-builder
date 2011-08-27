@@ -36,6 +36,7 @@ class JourneyPatternTimingLink < ActiveRecord::Base
   DIST_FUDGE = 100
 
   def validate
+    return true
     first = view_path_coordinates["LonLat"].first
     last = view_path_coordinates["LonLat"].last
     if DIST_FUDGE < getGeoDistance(from.location.coordinates["LonLat"],first) ||

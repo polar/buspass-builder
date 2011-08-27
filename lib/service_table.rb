@@ -218,6 +218,7 @@ class ServiceTable
           if jptl.google_uri != row[4]
             puts "Updating #{jptl.name} #{jptl.from.common_name} -> #{jptl.to.common_name}"
             jptl.google_uri = row[4]
+	    # Could also be a <kml> document from Google Earth
             vpc = GoogleUriViewPath.getViewPathCoordinates(jptl.google_uri)
             if vpc != nil
               jptl.view_path_coordinates = vpc
